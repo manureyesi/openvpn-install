@@ -600,6 +600,7 @@ function installQuestions() {
 }
 
 function installOpenVPN() {
+	mkdir /vpn	
 	if [[ $AUTO_INSTALL == "y" ]]; then
 		# Set default choices so that no questions will be asked.
 		APPROVE_INSTALL=${APPROVE_INSTALL:-y}
@@ -1088,13 +1089,16 @@ function newClient() {
 	fi
 
 	# Home directory of the user, where the client configuration (.ovpn) will be written
-	if [ -e "/home/$CLIENT" ]; then # if $1 is a user name
-		homeDir="/home/$CLIENT"
-	elif [ "${SUDO_USER}" ]; then # if not, use SUDO_USER
-		homeDir="/home/${SUDO_USER}"
-	else # if not SUDO_USER, use /root
-		homeDir="/root"
-	fi
+	# if [ -e "/home/$CLIENT" ]; then # if $1 is a user name
+	#	homeDir="/home/$CLIENT"
+	# elif [ "${SUDO_USER}" ]; then # if not, use SUDO_USER
+	#	homeDir="/home/${SUDO_USER}"
+	# else # if not SUDO_USER, use /root
+	#	homeDir="/root"
+	# fi
+	
+	# Este es nuestro home dir para guardar los certificados
+	homeDir="/vpn"
 
 	# Determine if we use tls-auth or tls-crypt
 	if grep -qs "^tls-crypt" /etc/openvpn/server.conf; then
@@ -1273,7 +1277,8 @@ function removeOpenVPN() {
 		rm -rf /usr/share/doc/openvpn*
 		rm -f /etc/sysctl.d/20-openvpn.conf
 		rm -rf /var/log/openvpn
-
+		rm -rf /vpn
+		
 		# Unbound
 		if [[ -e /etc/unbound/openvpn.conf ]]; then
 			removeUnbound
